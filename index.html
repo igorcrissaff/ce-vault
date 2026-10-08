@@ -1,1102 +1,413 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistemas Operacionais: Comunicação de Processos (IPC)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <title>Sistemas Operacionais Modernos - Guia Interativo</title>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        code, pre { font-family: 'Fira Code', monospace; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 0.4; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --accent: #059669;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
         }
-        .animate-pulse-ring { animation: pulse-ring 2s infinite; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        sidebar {
+            width: 300px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            background: #172554;
+            border-bottom: 1px solid #1e40af;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .sidebar-header p {
+            font-size: 0.8rem;
+            color: #93c5fd;
+            margin-top: 4px;
+        }
+
+        .nav-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            padding: 14px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: #60a5fa;
+            font-weight: 600;
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .topic-header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 16px;
+        }
+
+        .topic-title {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .topic-subtitle {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 1.05rem;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Interactive Elements */
+        .interactive-box {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Hardware Layers Visualizer */
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+
+        .layer {
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        .layer-user { background: #0284c7; }
+        .layer-os { background: #059669; }
+        .layer-hw { background: #475569; }
+
+        /* CPU Scheduling Simulator */
+        .process-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            height: 40px;
+        }
+
+        .process-block {
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Memory Paging Visualizer */
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .page-box {
+            background: white;
+            border: 2px solid #cbd5e1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .page-box.active {
+            border-color: var(--accent);
+            background: #ecfdf5;
+            color: #047857;
+            font-weight: bold;
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row antialiased selection:bg-brand-500 selection:text-white">
+<body>
 
-    <!-- Sidebar Navigation -->
-    <aside class="w-full md:w-72 bg-slate-950 border-b md:border-b-0 md:border-r border-slate-800 flex-shrink-0 flex flex-col justify-between z-20">
-        <div>
-            <!-- Header Logo -->
-            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-brand-600/20 text-brand-500 rounded-xl border border-brand-500/30">
-                        <i class="fa-solid fa-microchip text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-slate-100 text-sm tracking-wide">SISTEMAS OPERACIONAIS</h1>
-                        <p class="text-xs text-slate-400">Capítulo 2.3: IPC</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="p-4 space-y-1.5">
-                <p class="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Tópicos Interativos</p>
-                
-                <button onclick="switchTab('msg-passing')" id="nav-msg-passing" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-900/60">
-                    <i class="fa-solid fa-paper-plane w-5 text-center text-indigo-400"></i>
-                    <span>2.3.8. Troca de Mensagens</span>
-                </button>
-
-                <button onclick="switchTab('barriers')" id="nav-barriers" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-900/60">
-                    <i class="fa-solid fa-road-barrier w-5 text-center text-amber-400"></i>
-                    <span>2.3.9. Barreiras</span>
-                </button>
-
-                <button onclick="switchTab('rcu')" id="nav-rcu" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-900/60">
-                    <i class="fa-solid fa-arrows-rotate w-5 text-center text-emerald-400"></i>
-                    <span>2.3.10. Evitando Travas (RCU)</span>
-                </button>
-            </nav>
+    <sidebar>
+        <div class="sidebar-header">
+            <h1>Sistemas Operacionais Modernos</h1>
+            <p>Tanenbaum & Bos (4ª Edição)</p>
         </div>
+        <ul class="nav-list" id="navList">
+            <!-- Items inseridos dinamicamente pelo JS -->
+        </ul>
+    </sidebar>
 
-        <!-- Footer info -->
-        <div class="p-4 border-t border-slate-800/80 bg-slate-950/50 text-xs text-slate-500 space-y-1">
-            <div class="flex items-center gap-2 text-slate-400">
-                <i class="fa-solid fa-graduation-cap"></i>
-                <span class="font-medium">Sistemas Operacionais</span>
-            </div>
-            <p>Guia didático &amp; Simulador IPC</p>
-        </div>
-    </aside>
-
-    <!-- Main Content Viewport -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full">
-
-        <!-- ==================================================================== -->
-        <!-- TAB 1: TROCA DE MENSAGENS -->
-        <!-- ==================================================================== -->
-        <section id="tab-msg-passing" class="tab-content space-y-6">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900 to-slate-900 p-6 rounded-2xl border border-indigo-500/20 shadow-xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-paper-plane"></i> Tópico 2.3.8
-                </div>
-                <h2 class="text-2xl md:text-3xl font-bold text-slate-100">Troca de Mensagens (Message Passing)</h2>
-                <p class="text-slate-400 mt-2 max-w-3xl text-sm md:text-base leading-relaxed">
-                    Mecanismo de comunicação onde os processos trocam informações através de primitivas explícitas de <code class="text-indigo-300">send()</code> e <code class="text-indigo-300">receive()</code>, sem compartilhar o mesmo espaço de memória. O gerenciamento das filas pode ser síncrono (bloqueante) ou assíncrono (não-bloqueante).
-                </p>
-            </div>
-
-            <!-- Visual Simulator -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 md:p-6 shadow-2xl space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-flask text-indigo-400"></i> Simulador do Buffer do Sistema Operacional
-                        </h3>
-                        <p class="text-xs text-slate-400">Experimente como as mensagens fluem entre processos via Buffer do SO</p>
-                    </div>
-
-                    <!-- Mode Toggle Controls -->
-                    <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-medium">
-                        <button id="msg-mode-async" onclick="setMsgPassingMode('async')" class="px-3 py-1.5 rounded-lg transition-all text-slate-300 bg-indigo-600 font-semibold shadow">
-                            Assíncrono (Buffer)
-                        </button>
-                        <button id="msg-mode-sync" onclick="setMsgPassingMode('sync')" class="px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200">
-                            Síncrono (Rendezvous)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Interactive Canvas Area -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center relative">
-                    <!-- Process A (Emissor) -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center relative overflow-hidden flex flex-col justify-between h-64">
-                        <div class="space-y-2">
-                            <span class="inline-block p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 text-xl"><i class="fa-solid fa-server"></i></span>
-                            <h4 class="font-bold text-slate-200">Processo Emissor (A)</h4>
-                            <p class="text-xs text-slate-400">PID: 1042 (Espaço Isolado)</p>
-                        </div>
-
-                        <!-- Status Badge -->
-                        <div id="proc-a-status" class="py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            Pronto / Executando
-                        </div>
-
-                        <!-- Controls -->
-                        <div class="space-y-2">
-                            <input type="text" id="msg-input" value="Pacote #1 Dados do Processo" placeholder="Digite uma mensagem..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                            <button onclick="sendMsg()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
-                                <i class="fa-solid fa-paper-plane"></i> Executar send()
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- System Kernel / Queue Buffer -->
-                    <div class="bg-slate-900/80 border border-slate-800/80 rounded-xl p-4 text-center h-64 flex flex-col justify-between relative overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-memory text-purple-400"></i> Kernel OS / Queue
-                            </span>
-                            <span id="queue-count" class="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-mono">0 / 3 Msgs</span>
-                        </div>
-
-                        <!-- Message Queue Container -->
-                        <div id="queue-container" class="flex flex-col-reverse justify-start items-center gap-2 h-36 w-full p-2 bg-slate-950/60 rounded-lg border border-slate-800/50 overflow-y-auto">
-                            <p id="queue-empty-text" class="text-xs text-slate-600 my-auto">Fila de Mensagens Vazia</p>
-                        </div>
-
-                        <p id="mode-description-text" class="text-[11px] text-slate-500 italic">
-                            Modo Assíncrono: O emissor envia ao buffer e continua imediatamente sem esperar.
-                        </p>
-                    </div>
-
-                    <!-- Process B (Receptor) -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 text-center relative overflow-hidden flex flex-col justify-between h-64">
-                        <div class="space-y-2">
-                            <span class="inline-block p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 text-xl"><i class="fa-solid fa-desktop"></i></span>
-                            <h4 class="font-bold text-slate-200">Processo Receptor (B)</h4>
-                            <p class="text-xs text-slate-400">PID: 2088 (Espaço Isolado)</p>
-                        </div>
-
-                        <!-- Received Msg Slot -->
-                        <div class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-lg text-left">
-                            <span class="text-[10px] text-slate-500 uppercase font-semibold block">Última Mensagem Processada:</span>
-                            <p id="last-received-msg" class="text-xs font-mono text-emerald-400 truncate mt-0.5">Nenhuma</p>
-                        </div>
-
-                        <!-- Status Badge -->
-                        <div id="proc-b-status" class="py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-                            Aguardando
-                        </div>
-
-                        <!-- Controls -->
-                        <button onclick="receiveMsg()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-inbox"></i> Executar receive()
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Conceptual Details & Code Samples -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Theory Summary Card -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
-                    <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-indigo-400"></i> Conceitos Fundamentais
-                    </h3>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-check text-indigo-400 mt-1"></i>
-                            <div>
-                                <strong class="text-slate-100">Endereçamento Direto vs Indireto:</strong>
-                                No direto, os processos nomeiam o destino (`send(P, msg)`). No indireto, mensagens são enviadas para caixas de correio / filas (`send(mailbox, msg)`).
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-check text-indigo-400 mt-1"></i>
-                            <div>
-                                <strong class="text-slate-100">Bloqueante (Síncrono):</strong>
-                                O emissor é suspenso até que a mensagem seja recebida (*Rendezvous*), garantindo confirmação explícita de entrega.
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-check text-indigo-400 mt-1"></i>
-                            <div>
-                                <strong class="text-slate-100">Não-Bloqueante (Assíncrono):</strong>
-                                O emissor envia a mensagem para um buffer gerenciado pelo Kernel e retoma sua execução imediatamente.
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Code Example -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-3 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-code text-indigo-400"></i> Exemplo em C (POSIX Message Queues)
-                        </h3>
-                        <span class="text-xs text-slate-500 font-mono">mqueue.h</span>
-                    </div>
-                    <pre class="bg-slate-900 p-4 rounded-xl text-xs text-slate-300 border border-slate-800 overflow-x-auto"><code><span class="text-indigo-400">#include</span> &lt;mqueue.h&gt;
-
-<span class="text-slate-500">// Processo Emissor</span>
-mqd_t mq = mq_open(<span class="text-emerald-400">"/minha_fila"</span>, O_WRONLY);
-<span class="text-indigo-300">char</span> msg[] = <span class="text-emerald-400">"Dados do Processo A"</span>;
-mq_send(mq, msg, <span class="text-indigo-300">sizeof</span>(msg), <span class="text-amber-400">0</span>); <span class="text-slate-500">// Envia mensagem</span>
-
-<span class="text-slate-500">// Processo Receptor</span>
-mqd_t mq = mq_open(<span class="text-emerald-400">"/minha_fila"</span>, O_RDONLY);
-<span class="text-indigo-300">char</span> buffer[<span class="text-amber-400">128</span>];
-mq_receive(mq, buffer, <span class="text-indigo-300">sizeof</span>(buffer), NULL); <span class="text-slate-500">// Bloqueia até ler</span></code></pre>
-                </div>
-            </div>
-
-            <!-- Trade-offs Table -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6">
-                <h3 class="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-scale-balanced text-indigo-400"></i> Vantagens e Desvantagens
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div class="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-emerald-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-up"></i> Vantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Isolamento total de memória (não há risco de corrupção direta de RAM).</li>
-                            <li>Funciona perfeitamente em sistemas distribuídos (através de Sockets de Rede).</li>
-                            <li>Facilita a modularização e desacoplamento de sistemas.</li>
-                        </ul>
-                    </div>
-                    <div class="p-4 bg-rose-950/20 border border-rose-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-rose-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-down"></i> Desvantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Overhead de cópia de dados entre espaço do usuário e do kernel.</li>
-                            <li>Desempenho inferior comparado à memória compartilhada em grandes volumes.</li>
-                            <li>Necessidade de tratamento para buffers cheios ou mensagens perdidas.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================== -->
-        <!-- TAB 2: BARREIRAS -->
-        <!-- ==================================================================== -->
-        <section id="tab-barriers" class="tab-content space-y-6 hidden">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 p-6 rounded-2xl border border-amber-500/20 shadow-xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-road-barrier"></i> Tópico 2.3.9
-                </div>
-                <h2 class="text-2xl md:text-3xl font-bold text-slate-100">Barreiras de Sincronização (Barriers)</h2>
-                <p class="text-slate-400 mt-2 max-w-3xl text-sm md:text-base leading-relaxed">
-                    Ferramenta de sincronização para cálculos paralelos divididos em fases. Nenhum processo/thread pode avançar para a próxima fase de processamento até que **todos** os participantes tenham atingido a linha de barreira.
-                </p>
-            </div>
-
-            <!-- Barrier Simulator -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 md:p-6 shadow-2xl space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-amber-400"></i> Simulação de Sincronização em Fase
-                        </h3>
-                        <p class="text-xs text-slate-400">Avance as threads individualmente e observe o bloqueio na Barreira</p>
-                    </div>
-
-                    <!-- Global Actions -->
-                    <div class="flex items-center gap-2">
-                        <button onclick="advanceAllThreads()" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition-all flex items-center gap-2 shadow-lg shadow-amber-600/20">
-                            <i class="fa-solid fa-forward-step"></i> Avançar Todas
-                        </button>
-                        <button onclick="resetBarriers()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-rotate-left"></i> Resetar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Barrier Control Panel Status -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <span id="barrier-phase-badge" class="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold text-xs uppercase tracking-wider">
-                            Fase Atual: 1
-                        </span>
-                        <span id="barrier-counter" class="text-xs font-mono text-slate-300">
-                            Threads na Barreira: <strong class="text-amber-400 text-sm">0 / 4</strong>
-                        </span>
-                    </div>
-
-                    <p id="barrier-status-msg" class="text-xs text-slate-400 italic">
-                        Aguardando threads chegarem à barreira...
-                    </p>
-                </div>
-
-                <!-- Interactive Threads Visualization Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
-                    <!-- Thread Cards -->
-                    <!-- Thread 1 -->
-                    <div id="thread-card-0" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-slate-200 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-gear text-indigo-400"></i> Thread #1
-                            </span>
-                            <span id="thread-state-0" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">Executando</span>
-                        </div>
-                        
-                        <!-- Progress Bar -->
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Progresso da Fase</span>
-                                <span id="thread-pct-0">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                                <div id="thread-bar-0" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
-                            </div>
-                        </div>
-
-                        <button onclick="stepThread(0)" id="btn-thread-0" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-play text-[10px]"></i> Dar Passo
-                        </button>
-                    </div>
-
-                    <!-- Thread 2 -->
-                    <div id="thread-card-1" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-slate-200 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-gear text-indigo-400"></i> Thread #2
-                            </span>
-                            <span id="thread-state-1" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">Executando</span>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Progresso da Fase</span>
-                                <span id="thread-pct-1">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                                <div id="thread-bar-1" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
-                            </div>
-                        </div>
-
-                        <button onclick="stepThread(1)" id="btn-thread-1" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-play text-[10px]"></i> Dar Passo
-                        </button>
-                    </div>
-
-                    <!-- Thread 3 -->
-                    <div id="thread-card-2" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-slate-200 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-gear text-indigo-400"></i> Thread #3
-                            </span>
-                            <span id="thread-state-2" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">Executando</span>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Progresso da Fase</span>
-                                <span id="thread-pct-2">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                                <div id="thread-bar-2" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
-                            </div>
-                        </div>
-
-                        <button onclick="stepThread(2)" id="btn-thread-2" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-play text-[10px]"></i> Dar Passo
-                        </button>
-                    </div>
-
-                    <!-- Thread 4 -->
-                    <div id="thread-card-3" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-slate-200 text-xs flex items-center gap-2">
-                                <i class="fa-solid fa-gear text-indigo-400"></i> Thread #4
-                            </span>
-                            <span id="thread-state-3" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">Executando</span>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Progresso da Fase</span>
-                                <span id="thread-pct-3">0%</span>
-                            </div>
-                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                                <div id="thread-bar-3" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
-                            </div>
-                        </div>
-
-                        <button onclick="stepThread(3)" id="btn-thread-3" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-play text-[10px]"></i> Dar Passo
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Visual Barrier Wall Representation -->
-                <div class="border-t-2 border-dashed border-amber-500/50 pt-4 flex items-center justify-center gap-2 text-amber-400 text-xs font-semibold uppercase tracking-widest">
-                    <i class="fa-solid fa-road-barrier"></i> PONTO DE BARREIRA (pthread_barrier_wait) <i class="fa-solid fa-road-barrier"></i>
-                </div>
-            </div>
-
-            <!-- Concepts & Code -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Theory Card -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
-                    <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-amber-400"></i> Aplicação das Barreiras
-                    </h3>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-check text-amber-400 mt-1"></i>
-                            <div>
-                                <strong class="text-slate-100">Algoritmos Paralelos em Etapas:</strong>
-                                Muito usado em simulações físicas, processamento de imagens ou matrizes onde o passo $N+1$ depende dos resultados de *todas* as threads no passo $N$.
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-check text-amber-400 mt-1"></i>
-                            <div>
-                                <strong class="text-slate-100">Evitando Condições de Corrida de Fase:</strong>
-                                Garante que nenhuma thread adiantada sobrescreva dados que uma thread mais lenta ainda precisa ler da fase anterior.
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Code Example -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-3 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-code text-amber-400"></i> Exemplo em C (POSIX Barriers)
-                        </h3>
-                        <span class="text-xs text-slate-500 font-mono">pthread.h</span>
-                    </div>
-                    <pre class="bg-slate-900 p-4 rounded-xl text-xs text-slate-300 border border-slate-800 overflow-x-auto"><code><span class="text-indigo-400">#include</span> &lt;pthread.h&gt;
-
-pthread_barrier_t barreira;
-
-<span class="text-slate-500">// Inicializa a barreira para 4 threads</span>
-pthread_barrier_init(&amp;barreira, NULL, <span class="text-amber-400">4</span>);
-
-<span class="text-indigo-300">void</span>* worker(<span class="text-indigo-300">void</span>* arg) {
-    <span class="text-slate-500">// Executa Fase 1</span>
-    processa_fase_1();
-
-    <span class="text-slate-500">// Espera todas as threads atingirem este ponto</span>
-    pthread_barrier_wait(&amp;barreira);
-
-    <span class="text-slate-500">// Inicia Fase 2 somente após liberação</span>
-    processa_fase_2();
-}</code></pre>
-                </div>
-            </div>
-
-            <!-- Pros/Cons -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6">
-                <h3 class="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-scale-balanced text-amber-400"></i> Vantagens e Desvantagens
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div class="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-emerald-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-up"></i> Vantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Sincronização simples para algoritmos divididos em passos iterativos.</li>
-                            <li>Garantia estrita de consistência entre etapas paralelas.</li>
-                        </ul>
-                    </div>
-                    <div class="p-4 bg-rose-950/20 border border-rose-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-rose-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-down"></i> Desvantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Sensível a "threads lentas" (*Stragglers*): o sistema avança na velocidade da thread mais devagar.</li>
-                            <li>Gasto de recursos de CPU enquanto as threads aguardam no ponto de barreira.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================== -->
-        <!-- TAB 3: EVITANDO TRAVAS (RCU) -->
-        <!-- ==================================================================== -->
-        <section id="tab-rcu" class="tab-content space-y-6 hidden">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 p-6 rounded-2xl border border-emerald-500/20 shadow-xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-arrows-rotate"></i> Tópico 2.3.10
-                </div>
-                <h2 class="text-2xl md:text-3xl font-bold text-slate-100">Evitando Travas: Read-Copy-Update (RCU)</h2>
-                <p class="text-slate-400 mt-2 max-w-3xl text-sm md:text-base leading-relaxed">
-                    Técnica de sincronização sem travas (*lock-free*) otimizada para cenários com **muitas leituras e poucas escritas** (amplamente utilizada no Kernel do Linux). Leitores acessam os dados sem adquirir travas ou sofrer esperas. O escritor cria uma cópia, modifica-a, troca o ponteiro atomicamente e aguarda o **Grace Period** antes de liberar a versão antiga da memória.
-                </p>
-            </div>
-
-            <!-- RCU Interactive Simulator -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 md:p-6 shadow-2xl space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-vial text-emerald-400"></i> Simulação do Fluxo Read-Copy-Update
-                        </h3>
-                        <p class="text-xs text-slate-400">Simule leitores simultâneos enquanto um escritor executa a atualização e o Grace Period</p>
-                    </div>
-
-                    <button onclick="resetRCUSimulation()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate-left"></i> Resetar RCU
-                    </button>
-                </div>
-
-                <!-- Simulation Architecture Layout -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Column 1: Active Readers -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-eye text-sky-400"></i> Leitores (Read-Side)
-                            </span>
-                            <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded">Sem Trava</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <!-- Reader 1 -->
-                            <div id="rcu-reader-0" class="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-slate-300">Leitor #1</span>
-                                    <span id="rcu-reader-status-0" class="text-[10px] text-slate-500 font-mono">Inativo</span>
-                                </div>
-                                <button onclick="triggerRCUReader(0)" class="w-full py-1.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 rounded text-xs font-medium transition-all">
-                                    Ler Estrutura
-                                </button>
-                            </div>
-
-                            <!-- Reader 2 -->
-                            <div id="rcu-reader-1" class="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-slate-300">Leitor #2</span>
-                                    <span id="rcu-reader-status-1" class="text-[10px] text-slate-500 font-mono">Inativo</span>
-                                </div>
-                                <button onclick="triggerRCUReader(1)" class="w-full py-1.5 bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 rounded text-xs font-medium transition-all">
-                                    Ler Estrutura
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Column 2: Memory & Pointers Visualization -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 flex flex-col justify-between">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-database text-emerald-400"></i> Memória &amp; Ponteiro Global
-                            </span>
-                            <span class="text-[10px] font-mono text-emerald-400" id="global-ptr-text">*ptr_global -> V1</span>
-                        </div>
-
-                        <!-- Data Nodes Representation -->
-                        <div class="space-y-3 py-2">
-                            <!-- Node V1 -->
-                            <div id="rcu-node-v1" class="p-3 bg-emerald-950/40 border-2 border-emerald-500 rounded-xl flex items-center justify-between transition-all">
-                                <div>
-                                    <span class="text-xs font-bold text-emerald-300 block">Dados Versão 1 (Original)</span>
-                                    <span class="text-[10px] text-slate-400 font-mono">Endereço: 0x00A410</span>
-                                </div>
-                                <span id="node-v1-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                    Ativo (*ptr_global)
-                                </span>
-                            </div>
-
-                            <!-- Node V2 (Copy) -->
-                            <div id="rcu-node-v2" class="p-3 bg-slate-950/40 border border-slate-800 rounded-xl flex items-center justify-between opacity-40 transition-all">
-                                <div>
-                                    <span class="text-xs font-bold text-slate-400 block" id="node-v2-title">Dados Versão 2 (Inexistente)</span>
-                                    <span class="text-[10px] text-slate-500 font-mono">Endereço: 0x00B820</span>
-                                </div>
-                                <span id="node-v2-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500">
-                                    Não alocado
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Grace Period Bar -->
-                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 space-y-1.5">
-                            <div class="flex justify-between text-[10px]">
-                                <span class="text-slate-400 font-semibold">Status do Grace Period:</span>
-                                <span id="grace-status-text" class="text-slate-500 font-mono">Aguardando Escritor</span>
-                            </div>
-                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                                <div id="grace-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Column 3: Writer (Write-Side) Controls -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 flex flex-col justify-between">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-pen-to-square text-amber-400"></i> Escritor (Write-Side)
-                            </span>
-                        </div>
-
-                        <!-- Step by step writer trigger -->
-                        <div class="space-y-3">
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                O escritor não bloqueia leitores. Ele aloca uma cópia, modifica, atualiza o ponteiro atomicamente e aguarda o Grace Period para desalocar a versão antiga.
-                            </p>
-
-                            <button id="btn-rcu-update" onclick="executeRCUWriterUpdate()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-rotate"></i> Atualizar Estrutura (RCU Update)
-                            </button>
-                        </div>
-
-                        <!-- Writer Step Status -->
-                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80">
-                            <span class="text-[10px] text-slate-500 uppercase font-semibold block">Etapa Atual do Escritor:</span>
-                            <p id="rcu-writer-step-text" class="text-xs font-medium text-amber-400 mt-0.5">Ocioso</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Concepts & Code -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Theory -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4">
-                    <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-emerald-400"></i> As Três Fases do RCU
-                    </h3>
-                    <ul class="space-y-3 text-sm text-slate-300">
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-1 text-emerald-400 mt-1 font-bold"></i>
-                            <div>
-                                <strong class="text-slate-100">Leitura Cópia (Publish-Subscribe):</strong>
-                                O escritor aloca uma nova estrutura na memória, copia o conteúdo existente e faz as alterações desejadas isoladamente.
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-2 text-emerald-400 mt-1 font-bold"></i>
-                            <div>
-                                <strong class="text-slate-100">Atualização do Ponteiro (Update):</strong>
-                                O ponteiro global é redirecionado atomicamente para a nova estrutura. Novos leitores passam a ver os novos dados imediatamente.
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <i class="fa-solid fa-3 text-emerald-400 mt-1 font-bold"></i>
-                            <div>
-                                <strong class="text-slate-100">Grace Period &amp; Liberação (Reclaim):</strong>
-                                O escritor aguarda até que todas as threads de leitura pré-existentes saiam de suas seções críticas antes de liberar a memória da versão antiga (`kfree`).
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Code Example -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-3 flex flex-col justify-between">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-code text-emerald-400"></i> Exemplo RCU (Kernel do Linux C)
-                        </h3>
-                        <span class="text-xs text-slate-500 font-mono">linux/rcupdate.h</span>
-                    </div>
-                    <pre class="bg-slate-900 p-4 rounded-xl text-xs text-slate-300 border border-slate-800 overflow-x-auto"><code><span class="text-slate-500">// --- LEITOR (Sem Locks) ---</span>
-rcu_read_lock();
-p = rcu_dereference(g_ptr);
-<span class="text-indigo-300">if</span> (p) faz_algo_com(p-&gt;valor);
-rcu_read_unlock();
-
-<span class="text-slate-500">// --- ESCRITOR ---</span>
-struct Dado *novo = kmalloc(<span class="text-indigo-300">sizeof</span>(*novo), GFP_KERNEL);
-*novo = *antigo;               <span class="text-slate-500">// 1. Cópia</span>
-novo-&gt;valor = <span class="text-amber-400">100</span>;             <span class="text-slate-500">// Modificação</span>
-rcu_assign_pointer(g_ptr, novo); <span class="text-slate-500">// 2. Atualização Atômica</span>
-synchronize_rcu();             <span class="text-slate-500">// 3. Aguarda Grace Period</span>
-kfree(antigo);                 <span class="text-slate-500">// Liberação segura</span></code></pre>
-                </div>
-            </div>
-
-            <!-- Pros/Cons -->
-            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6">
-                <h3 class="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-scale-balanced text-emerald-400"></i> Vantagens e Desvantagens
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div class="p-4 bg-emerald-950/20 border border-emerald-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-emerald-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-up"></i> Vantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Leitura com custo quase zero de sincronização (sem contendas de lock ou inválidos de cache).</li>
-                            <li>Escalabilidade espetacular em sistemas multiprocessados (SMP).</li>
-                            <li>Imune a Deadlocks durante operações de leitura.</li>
-                        </ul>
-                    </div>
-                    <div class="p-4 bg-rose-950/20 border border-rose-500/20 rounded-xl space-y-2">
-                        <span class="font-bold text-rose-400 text-sm flex items-center gap-1.5"><i class="fa-solid fa-thumbs-down"></i> Desvantagens</span>
-                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-                            <li>Escrita custosa devido à alocação de memória e espera pelo Grace Period.</li>
-                            <li>Inadequado para cargas de trabalho com escritas muito frequentes.</li>
-                            <li>Maior complexidade na gestão de memória e referências de ponteiros.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+    <main id="mainContent">
+        <!-- Conteúdo carregado dinamicamente -->
     </main>
 
-    <!-- JavaScript Application Logic -->
     <script>
-        function switchTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            
-            // Show target tab
-            const target = document.getElementById(`tab-${tabId}`);
-            if (target) target.classList.remove('hidden');
-
-            // Reset navigation active styles
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-800', 'text-slate-100', 'shadow-md');
-                btn.classList.add('text-slate-400');
-            });
-
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-slate-800', 'text-slate-100', 'shadow-md');
-                activeBtn.classList.remove('text-slate-400');
-            }
-        }
-
-        // Initialize active tab
-        switchTab('msg-passing');
-
-        let msgMode = 'async'; // 'async' | 'sync'
-        let messageQueue = [];
-        const MAX_QUEUE_SIZE = 3;
-
-        function setMsgPassingMode(mode) {
-            msgMode = mode;
-            const asyncBtn = document.getElementById('msg-mode-async');
-            const syncBtn = document.getElementById('msg-mode-sync');
-            const descText = document.getElementById('mode-description-text');
-
-            if (mode === 'async') {
-                asyncBtn.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-300 bg-indigo-600 font-semibold shadow';
-                syncBtn.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
-                descText.textContent = 'Modo Assíncrono: O emissor envia ao buffer do Kernel e continua sem esperar.';
-            } else {
-                syncBtn.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-300 bg-indigo-600 font-semibold shadow';
-                asyncBtn.className = 'px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-slate-200';
-                descText.textContent = 'Modo Síncrono (Rendezvous): O emissor fica bloqueado na fila até o receptor ler a mensagem.';
-            }
-            resetMsgSimulator();
-        }
-
-        function renderMsgQueue() {
-            const container = document.getElementById('queue-container');
-            const counter = document.getElementById('queue-count');
-            
-            container.innerHTML = '';
-            counter.textContent = `${messageQueue.length} / ${MAX_QUEUE_SIZE} Msgs`;
-
-            if (messageQueue.length === 0) {
-                container.innerHTML = `<p id="queue-empty-text" class="text-xs text-slate-600 my-auto">Fila de Mensagens Vazia</p>`;
-                return;
-            }
-
-            messageQueue.forEach((msg, idx) => {
-                const el = document.createElement('div');
-                el.className = 'w-full bg-slate-900 border border-indigo-500/30 text-indigo-300 p-2 rounded text-xs font-mono flex items-center justify-between shadow-sm animate-pulse-ring';
-                el.innerHTML = `
-                    <span class="truncate"><i class="fa-solid fa-envelope text-indigo-400 mr-1.5"></i> ${msg}</span>
-                    <span class="text-[9px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300">#${idx + 1}</span>
-                `;
-                container.appendChild(el);
-            });
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('msg-input');
-            const msgText = input.value.trim() || 'Mensagem Padrão IPC';
-            const procAStatus = document.getElementById('proc-a-status');
-
-            if (messageQueue.length >= MAX_QUEUE_SIZE) {
-                alert('Buffer do Kernel cheio! O processo A ficará bloqueado até que haja espaço no buffer.');
-                return;
-            }
-
-            messageQueue.push(msgText);
-            renderMsgQueue();
-
-            if (msgMode === 'sync') {
-                procAStatus.textContent = 'Bloqueado (Aguardando Rendezvous)';
-                procAStatus.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20';
-            } else {
-                procAStatus.textContent = 'Pronto / Executando';
-                procAStatus.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-            }
-        }
-
-        function receiveMsg() {
-            const lastReceived = document.getElementById('last-received-msg');
-            const procBStatus = document.getElementById('proc-b-status');
-            const procAStatus = document.getElementById('proc-a-status');
-
-            if (messageQueue.length === 0) {
-                procBStatus.textContent = 'Bloqueado no receive() (Fila Vazia)';
-                procBStatus.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20';
-                return;
-            }
-
-            const msg = messageQueue.shift();
-            renderMsgQueue();
-
-            lastReceived.textContent = msg;
-            procBStatus.textContent = 'Mensagem Recebida';
-            procBStatus.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-
-            // Unblock Process A if in Sync mode
-            if (msgMode === 'sync') {
-                procAStatus.textContent = 'Pronto / Executando (Rendezvous Concluído)';
-                procAStatus.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-            }
-        }
-
-        function resetMsgSimulator() {
-            messageQueue = [];
-            renderMsgQueue();
-            document.getElementById('last-received-msg').textContent = 'Nenhuma';
-            document.getElementById('proc-a-status').textContent = 'Pronto / Executando';
-            document.getElementById('proc-a-status').className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-            document.getElementById('proc-b-status').textContent = 'Aguardando';
-            document.getElementById('proc-b-status').className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700';
-        }
-
-        const NUM_THREADS = 4;
-        let threadProgress = [0, 0, 0, 0];
-        let barrierPhase = 1;
-
-        function updateBarrierUI() {
-            let waitingCount = 0;
-
-            for (let i = 0; i < NUM_THREADS; i++) {
-                const bar = document.getElementById(`thread-bar-${i}`);
-                const pct = document.getElementById(`thread-pct-${i}`);
-                const state = document.getElementById(`thread-state-${i}`);
-                const card = document.getElementById(`thread-card-${i}`);
-                const btn = document.getElementById(`btn-thread-${i}`);
-
-                const val = threadProgress[i];
-                bar.style.width = `${val}%`;
-                pct.textContent = `${val}%`;
-
-                if (val >= 100) {
-                    waitingCount++;
-                    state.textContent = 'Na Barreira (Bloqueado)';
-                    state.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30';
-                    card.className = 'bg-slate-900 border-2 border-amber-500/50 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all';
-                    btn.disabled = true;
-                    btn.classList.add('opacity-40', 'cursor-not-allowed');
-                } else {
-                    state.textContent = 'Executando';
-                    state.className = 'text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold';
-                    card.className = 'bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4 relative overflow-hidden transition-all';
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-40', 'cursor-not-allowed');
-                }
-            }
-
-            document.getElementById('barrier-counter').innerHTML = `Threads na Barreira: <strong class="text-amber-400 text-sm">${waitingCount} / ${NUM_THREADS}</strong>`;
-            document.getElementById('barrier-phase-badge').textContent = `Fase Atual: ${barrierPhase}`;
-
-            const statusMsg = document.getElementById('barrier-status-msg');
-
-            // Check if barrier released
-            if (waitingCount === NUM_THREADS) {
-                statusMsg.textContent = 'Todas as threads chegaram! Liberando barreira para a próxima fase...';
-                statusMsg.className = 'text-xs text-emerald-400 font-bold animate-pulse';
-
-                setTimeout(() => {
-                    barrierPhase++;
-                    threadProgress = [0, 0, 0, 0];
-                    updateBarrierUI();
-                    statusMsg.textContent = `Barreira liberada! Iniciando Fase ${barrierPhase}.`;
-                    statusMsg.className = 'text-xs text-slate-400 italic';
-                }, 1200);
-            } else {
-                statusMsg.textContent = `Aguardando mais ${NUM_THREADS - waitingCount} thread(s) atingir(em) a barreira...`;
-                statusMsg.className = 'text-xs text-slate-400 italic';
-            }
-        }
-
-        function stepThread(index) {
-            if (threadProgress[index] < 100) {
-                threadProgress[index] += 50;
-                if (threadProgress[index] > 100) threadProgress[index] = 100;
-                updateBarrierUI();
-            }
-        }
-
-        function advanceAllThreads() {
-            for (let i = 0; i < NUM_THREADS; i++) {
-                threadProgress[i] = 100;
-            }
-            updateBarrierUI();
-        }
-
-        function resetBarriers() {
-            threadProgress = [0, 0, 0, 0];
-            barrierPhase = 1;
-            updateBarrierUI();
-        }
-
-        let readerActive = [false, false];
-        let rcuWriterState = 'idle'; // 'idle' | 'copy' | 'updated' | 'grace'
-
-        function triggerRCUReader(index) {
-            readerActive[index] = true;
-            const statusEl = document.getElementById(`rcu-reader-status-${index}`);
-            statusEl.textContent = 'Lendo (*ptr_global)';
-            statusEl.className = 'text-[10px] text-sky-400 font-bold font-mono animate-pulse';
-
-            setTimeout(() => {
-                readerActive[index] = false;
-                statusEl.textContent = 'Inativo';
-                statusEl.className = 'text-[10px] text-slate-500 font-mono';
-                checkGracePeriodCompletion();
-            }, 2500);
-        }
-
-        function executeRCUWriterUpdate() {
-            if (rcuWriterState !== 'idle') return;
-
-            const btnUpdate = document.getElementById('btn-rcu-update');
-            const stepText = document.getElementById('rcu-writer-step-text');
-            const nodeV2 = document.getElementById('rcu-node-v2');
-            const nodeV2Title = document.getElementById('node-v2-title');
-            const nodeV2Badge = document.getElementById('node-v2-badge');
-            const globalPtrText = document.getElementById('global-ptr-text');
-
-            btnUpdate.disabled = true;
-            btnUpdate.classList.add('opacity-40');
-
-            // Step 1: Copy & Modify
-            rcuWriterState = 'copy';
-            stepText.textContent = '1. Alocando cópia V2 e modificando dados...';
-            nodeV2.className = 'p-3 bg-amber-950/40 border border-amber-500/50 rounded-xl flex items-center justify-between transition-all opacity-100';
-            nodeV2Title.textContent = 'Dados Versão 2 (Cópia em modificação)';
-            nodeV2Title.className = 'text-xs font-bold text-amber-300 block';
-            nodeV2Badge.textContent = 'Modificando';
-            nodeV2Badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
-
-            // Step 2: Atomic Pointer Update
-            setTimeout(() => {
-                rcuWriterState = 'updated';
-                stepText.textContent = '2. Ponteiro Global atualizado para V2 (Atomic Update)';
-                globalPtrText.textContent = '*ptr_global -> V2';
-
-                nodeV2.className = 'p-3 bg-emerald-950/40 border-2 border-emerald-500 rounded-xl flex items-center justify-between transition-all opacity-100';
-                nodeV2Title.textContent = 'Dados Versão 2 (Nova versão ativa)';
-                nodeV2Title.className = 'text-xs font-bold text-emerald-300 block';
-                nodeV2Badge.textContent = 'Ativo (*ptr_global)';
-                nodeV2Badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-
-                // Node V1 is now obsolete
-                const nodeV1 = document.getElementById('rcu-node-v1');
-                const nodeV1Badge = document.getElementById('node-v1-badge');
-                nodeV1.className = 'p-3 bg-rose-950/20 border border-rose-500/30 rounded-xl flex items-center justify-between transition-all opacity-60';
-                nodeV1Badge.textContent = 'Obsoleto (Aguardando Grace)';
-                nodeV1Badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
-
-                // Step 3: Grace Period
-                startGracePeriod();
-            }, 1500);
-        }
-
-        function startGracePeriod() {
-            rcuWriterState = 'grace';
-            const stepText = document.getElementById('rcu-writer-step-text');
-            const graceStatus = document.getElementById('grace-status-text');
-            const graceBar = document.getElementById('grace-bar');
-
-            stepText.textContent = '3. Aguardando Grace Period (synchronize_rcu)...';
-            graceStatus.textContent = 'Aguardando leitores antigos terminarem...';
-            graceBar.style.width = '50%';
-
-            checkGracePeriodCompletion();
-        }
-
-        function checkGracePeriodCompletion() {
-            if (rcuWriterState !== 'grace') return;
-
-            const anyActive = readerActive[0] || readerActive[1];
-            if (!anyActive) {
-                const graceBar = document.getElementById('grace-bar');
-                const graceStatus = document.getElementById('grace-status-text');
-                const stepText = document.getElementById('rcu-writer-step-text');
-                const nodeV1 = document.getElementById('rcu-node-v1');
-
-                graceBar.style.width = '100%';
-                graceStatus.textContent = 'Concluído! Sem leitores na V1.';
-
-                setTimeout(() => {
-                    // Reclaim memory
-                    nodeV1.className = 'p-3 bg-slate-950/40 border border-slate-800 rounded-xl flex items-center justify-between transition-all opacity-30';
-                    nodeV1.innerHTML = `
-                        <div>
-                            <span class="text-xs font-bold text-slate-500 block">Memória V1 Desalocada (kfree)</span>
-                            <span class="text-[10px] text-slate-600 font-mono">0x00A410 Liberado</span>
+        const topics = [
+            {
+                id: 'intro',
+                title: '1. Introdução aos SOs',
+                subtitle: 'Visão Geral e Camadas de Abstração',
+                content: `
+                    <p>Um sistema operacional (SO) atua como camada intermediária entre os programas do utilizador e o hardware real. Fornece abstrações limpas (como ficheiros e processos) e gere recursos (CPU, memória, E/S).</p>
+                    
+                    <div class="interactive-box">
+                        <h3>Camadas do Sistema (Passe o rato por cima)</h3>
+                        <div class="layer-stack">
+                            <div class="layer layer-user" onmouseover="showDetail('Programas de utilizador (Browsers, Jogos) em modo utilizador.')">Modo Utilizador / Aplicações</div>
+                            <div class="layer layer-os" onmouseover="showDetail('O Núcleo (Kernel) do SO a executar em modo supervisor/núcleo.')">Modo Núcleo / Sistema Operativo</div>
+                            <div class="layer layer-hw" onmouseover="showDetail('Processador, Memória, Discos e Dispositivos de E/S.')">Hardware do Computador</div>
                         </div>
-                    `;
+                        <p id="layerDetail" style="margin-top: 10px; font-weight: 500; color: var(--primary);">Passe o cursor sobre uma camada para ver detalhes.</p>
+                    </div>
+                `
+            },
+            {
+                id: 'processes',
+                title: '2. Processos e Threads',
+                subtitle: 'Concorrência e Escalonamento da CPU',
+                content: `
+                    <p>Um <b>Processo</b> é um programa em execução com o seu próprio espaço de endereçamento. Uma <b>Thread</b> é uma unidade mais leve de execução dentro de um processo.</p>
+                    
+                    <div class="interactive-box">
+                        <h3>Simulador de Escalonamento (Round-Robin)</h3>
+                        <p>A CPU alterna rapidamente entre diferentes processos dando a ilusão de execução simultânea (multiprogramação).</p>
+                        <button class="btn" style="margin-top: 10px;" onclick="simulateScheduling()">Executar Ciclos de CPU</button>
+                        <div class="process-bar" id="processContainer"></div>
+                    </div>
+                `
+            },
+            {
+                id: 'memory',
+                title: '3. Gestão de Memória',
+                subtitle: 'Memória Virtual e Paginação',
+                content: `
+                    <p>A memória virtual permite que o sistema execute programas maiores que a RAM física através da <b>Paginação</b>, dividindo a memória em blocos chamados páginas.</p>
+                    
+                    <div class="interactive-box">
+                        <h3>Visualizador de Mapeamento de Páginas</h3>
+                        <button class="btn" onclick="randomPageAccess()">Aceder a Página Aleatória</button>
+                        <div class="page-grid" id="pageGrid">
+                            <div class="page-box" id="p0">Página 0 (RAM)</div>
+                            <div class="page-box" id="p1">Página 1 (RAM)</div>
+                            <div class="page-box" id="p2">Página 2 (Disco)</div>
+                            <div class="page-box" id="p3">Página 3 (RAM)</div>
+                        </div>
+                        <p id="pageStatus" style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);"></p>
+                    </div>
+                `
+            },
+            {
+                id: 'files',
+                title: '4. Sistemas de Ficheiros',
+                subtitle: 'Organização e Armazenamento',
+                content: `
+                    <p>Os sistemas de ficheiros abstraem discos e memórias flash em coleções de ficheiros e diretórios estruturados (ex: NTFS, ext4, FAT32).</p>
+                    <ul>
+                        <li><b>Inodes / Tabelas:</b> Guardam metadados dos ficheiros (tamanho, permissões, blocos de dados).</li>
+                        <li><b>Journaling:</b> Registo de alterações para evitar corrupção em falhas de energia.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'io',
+                title: '5. Entrada e Saída (E/S)',
+                subtitle: 'Controladores, DMA e Interrupções',
+                content: `
+                    <p>O software de E/S organiza-se em camadas: Tratadores de Interrupção &rarr; Drivers de Dispositivo &rarr; Software Independente de Dispositivo &rarr; Espaço do Utilizador.</p>
+                `
+            },
+            {
+                id: 'deadlocks',
+                title: '6. Impasses (Deadlocks)',
+                subtitle: 'Bloqueios Mútuos de Recursos',
+                content: `
+                    <p>Um Impasse ocorre quando dois ou mais processos ficam bloqueados à espera de recursos mantidos uns pelos outros.</p>
+                    <p><b>Condições para Impasse:</b> Exclusão Mútua, Posse e Espera, Sem Preempção e Espera Circular.</p>
+                `
+            },
+            {
+                id: 'virtualization',
+                title: '7. Virtualização e Nuvem',
+                subtitle: 'Hipervisores Tipo 1 e Tipo 2',
+                content: `
+                    <p>A virtualização permite a execução de múltiplos sistemas operativos no mesmo hardware através de um <b>Hipervisor</b> (ex: VMware, KVM).</p>
+                `
+            },
+            {
+                id: 'security',
+                title: '9. Segurança',
+                subtitle: 'Ameaças, Vulnerabilidades e Proteção',
+                content: `
+                    <p>Abrange mecanismos para proteger os recursos do sistema contra malwares e explorações como o <i>Buffer Overflow</i> (transbordamento de buffer).</p>
+                `
+            }
+        ];
 
-                    stepText.textContent = 'Concluído! Memória antiga liberada com segurança.';
-                    rcuWriterState = 'completed';
-                }, 800);
+        function init() {
+            const navList = document.getElementById('navList');
+            topics.forEach((topic, index) => {
+                const li = document.createElement('li');
+                li.className = `nav-item ${index === 0 ? 'active' : ''}`;
+                li.innerText = topic.title;
+                li.onclick = () => loadTopic(index, li);
+                navList.appendChild(li);
+            });
+
+            loadTopic(0, navList.children[0]);
+        }
+
+        function loadTopic(index, element) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            const topic = topics[index];
+            const main = document.getElementById('mainContent');
+            main.innerHTML = `
+                <div class="topic-header">
+                    <h2 class="topic-title">${topic.title}</h2>
+                    <p class="topic-subtitle">${topic.subtitle}</p>
+                </div>
+                <div class="content-card">
+                    ${topic.content}
+                </div>
+            `;
+        }
+
+        // Interatividade da aba de Introdução
+        function showDetail(text) {
+            document.getElementById('layerDetail').innerText = text;
+        }
+
+        // Interatividade da aba de Processos
+        let pCount = 0;
+        function simulateScheduling() {
+            const container = document.getElementById('processContainer');
+            const pNames = ['P1 (Web)', 'P2 (DB)', 'P3 (Audio)', 'P4 (IDE)'];
+            const pName = pNames[pCount % pNames.length];
+            pCount++;
+
+            const block = document.createElement('div');
+            block.className = 'process-block';
+            block.style.flex = '1';
+            block.innerText = pName;
+
+            if (container.children.length >= 5) {
+                container.removeChild(container.firstChild);
+            }
+            container.appendChild(block);
+        }
+
+        // Interatividade da aba de Memória
+        function randomPageAccess() {
+            const pageId = Math.floor(Math.random() * 4);
+            const status = document.getElementById('pageStatus');
+            
+            document.querySelectorAll('.page-box').forEach(box => box.classList.remove('active'));
+            
+            const selected = document.getElementById(`p${pageId}`);
+            selected.classList.add('active');
+
+            if (pageId === 2) {
+                status.innerText = `⚠️ Falta de Página (Page Fault)! A Página 2 precisa ser carregada do disco para a RAM.`;
+                status.style.color = '#dc2626';
+            } else {
+                status.innerText = `âœ… Acerto de Página (Page Hit)! A Página ${pageId} foi acedida diretamente na RAM.`;
+                status.style.color = '#059669';
             }
         }
 
-        function resetRCUSimulation() {
-            readerActive = [false, false];
-            rcuWriterState = 'idle';
-
-            document.getElementById('rcu-reader-status-0').textContent = 'Inativo';
-            document.getElementById('rcu-reader-status-0').className = 'text-[10px] text-slate-500 font-mono';
-            document.getElementById('rcu-reader-status-1').textContent = 'Inativo';
-            document.getElementById('rcu-reader-status-1').className = 'text-[10px] text-slate-500 font-mono';
-
-            document.getElementById('global-ptr-text').textContent = '*ptr_global -> V1';
-
-            document.getElementById('rcu-node-v1').className = 'p-3 bg-emerald-950/40 border-2 border-emerald-500 rounded-xl flex items-center justify-between transition-all';
-            document.getElementById('rcu-node-v1').innerHTML = `
-                <div>
-                    <span class="text-xs font-bold text-emerald-300 block">Dados Versão 1 (Original)</span>
-                    <span class="text-[10px] text-slate-400 font-mono">Endereço: 0x00A410</span>
-                </div>
-                <span id="node-v1-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Ativo (*ptr_global)
-                </span>
-            `;
-
-            document.getElementById('rcu-node-v2').className = 'p-3 bg-slate-950/40 border border-slate-800 rounded-xl flex items-center justify-between opacity-40 transition-all';
-            document.getElementById('rcu-node-v2').innerHTML = `
-                <div>
-                    <span class="text-xs font-bold text-slate-400 block" id="node-v2-title">Dados Versão 2 (Inexistente)</span>
-                    <span class="text-[10px] text-slate-500 font-mono">Endereço: 0x00B820</span>
-                </div>
-                <span id="node-v2-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500">
-                    Não alocado
-                </span>
-            `;
-
-            document.getElementById('grace-bar').style.width = '0%';
-            document.getElementById('grace-status-text').textContent = 'Aguardando Escritor';
-            document.getElementById('rcu-writer-step-text').textContent = 'Ocioso';
-
-            const btnUpdate = document.getElementById('btn-rcu-update');
-            btnUpdate.disabled = false;
-            btnUpdate.classList.remove('opacity-40');
-        }
+        window.onload = init;
     </script>
 </body>
 </html>
