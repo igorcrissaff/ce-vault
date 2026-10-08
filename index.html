@@ -224,7 +224,7 @@
             <p>Tanenbaum & Bos (4ª Edição)</p>
         </div>
         <ul class="nav-list" id="navList">
-            <!-- Items inseridos dinamicamente pelo JS -->
+            <!-- Inserido dinamicamente pelo JavaScript -->
         </ul>
     </sidebar>
 
@@ -239,13 +239,13 @@
                 title: '1. Introdução aos SOs',
                 subtitle: 'Visão Geral e Camadas de Abstração',
                 content: `
-                    <p>Um sistema operacional (SO) atua como camada intermediária entre os programas do utilizador e o hardware real. Fornece abstrações limpas (como ficheiros e processos) e gere recursos (CPU, memória, E/S).</p>
+                    <p>Um sistema operacional (SO) atua como camada intermediária entre os programas do usuário e o hardware real. Fornece abstrações limpas (como arquivos e processos) e gerencia recursos (CPU, memória, E/S).</p>
                     
                     <div class="interactive-box">
-                        <h3>Camadas do Sistema (Passe o rato por cima)</h3>
+                        <h3>Camadas do Sistema (Passe o mouse por cima)</h3>
                         <div class="layer-stack">
-                            <div class="layer layer-user" onmouseover="showDetail('Programas de utilizador (Browsers, Jogos) em modo utilizador.')">Modo Utilizador / Aplicações</div>
-                            <div class="layer layer-os" onmouseover="showDetail('O Núcleo (Kernel) do SO a executar em modo supervisor/núcleo.')">Modo Núcleo / Sistema Operativo</div>
+                            <div class="layer layer-user" onmouseover="showDetail('Programas de usuário (Navegadores, Jogos) em modo usuário.')">Modo Usuário / Aplicações</div>
+                            <div class="layer layer-os" onmouseover="showDetail('O Núcleo (Kernel) do SO executando em modo supervisor/núcleo.')">Modo Núcleo / Sistema Operacional</div>
                             <div class="layer layer-hw" onmouseover="showDetail('Processador, Memória, Discos e Dispositivos de E/S.')">Hardware do Computador</div>
                         </div>
                         <p id="layerDetail" style="margin-top: 10px; font-weight: 500; color: var(--primary);">Passe o cursor sobre uma camada para ver detalhes.</p>
@@ -257,7 +257,7 @@
                 title: '2. Processos e Threads',
                 subtitle: 'Concorrência e Escalonamento da CPU',
                 content: `
-                    <p>Um <b>Processo</b> é um programa em execução com o seu próprio espaço de endereçamento. Uma <b>Thread</b> é uma unidade mais leve de execução dentro de um processo.</p>
+                    <p>Um <b>Processo</b> é um programa em execução com seu próprio espaço de endereçamento. Uma <b>Thread</b> é uma unidade mais leve de execução dentro de um processo.</p>
                     
                     <div class="interactive-box">
                         <h3>Simulador de Escalonamento (Round-Robin)</h3>
@@ -269,14 +269,14 @@
             },
             {
                 id: 'memory',
-                title: '3. Gestão de Memória',
+                title: '3. Gerenciamento de Memória',
                 subtitle: 'Memória Virtual e Paginação',
                 content: `
                     <p>A memória virtual permite que o sistema execute programas maiores que a RAM física através da <b>Paginação</b>, dividindo a memória em blocos chamados páginas.</p>
                     
                     <div class="interactive-box">
                         <h3>Visualizador de Mapeamento de Páginas</h3>
-                        <button class="btn" onclick="randomPageAccess()">Aceder a Página Aleatória</button>
+                        <button class="btn" onclick="randomPageAccess()">Acessar Página Aleatória</button>
                         <div class="page-grid" id="pageGrid">
                             <div class="page-box" id="p0">Página 0 (RAM)</div>
                             <div class="page-box" id="p1">Página 1 (RAM)</div>
@@ -289,13 +289,13 @@
             },
             {
                 id: 'files',
-                title: '4. Sistemas de Ficheiros',
+                title: '4. Sistemas de Arquivos',
                 subtitle: 'Organização e Armazenamento',
                 content: `
-                    <p>Os sistemas de ficheiros abstraem discos e memórias flash em coleções de ficheiros e diretórios estruturados (ex: NTFS, ext4, FAT32).</p>
+                    <p>Os sistemas de arquivos abstraem discos e memórias flash em coleções de arquivos e diretórios estruturados (ex: NTFS, ext4, FAT32).</p>
                     <ul>
-                        <li><b>Inodes / Tabelas:</b> Guardam metadados dos ficheiros (tamanho, permissões, blocos de dados).</li>
-                        <li><b>Journaling:</b> Registo de alterações para evitar corrupção em falhas de energia.</li>
+                        <li><b>Inodes / Tabelas:</b> Guardam metadados dos arquivos (tamanho, permissões, blocos de dados).</li>
+                        <li><b>Journaling:</b> Registro de alterações para evitar corrupção em falhas de energia.</li>
                     </ul>
                 `
             },
@@ -304,7 +304,7 @@
                 title: '5. Entrada e Saída (E/S)',
                 subtitle: 'Controladores, DMA e Interrupções',
                 content: `
-                    <p>O software de E/S organiza-se em camadas: Tratadores de Interrupção &rarr; Drivers de Dispositivo &rarr; Software Independente de Dispositivo &rarr; Espaço do Utilizador.</p>
+                    <p>O software de E/S organiza-se em camadas: Tratadores de Interrupção &rarr; Drivers de Dispositivo &rarr; Software Independente de Dispositivo &rarr; Espaço do Usuário.</p>
                 `
             },
             {
@@ -321,7 +321,7 @@
                 title: '7. Virtualização e Nuvem',
                 subtitle: 'Hipervisores Tipo 1 e Tipo 2',
                 content: `
-                    <p>A virtualização permite a execução de múltiplos sistemas operativos no mesmo hardware através de um <b>Hipervisor</b> (ex: VMware, KVM).</p>
+                    <p>A virtualização permite a execução de múltiplos sistemas operacionais no mesmo hardware através de um <b>Hipervisor</b> (ex: VMware, KVM).</p>
                 `
             },
             {
@@ -329,7 +329,7 @@
                 title: '9. Segurança',
                 subtitle: 'Ameaças, Vulnerabilidades e Proteção',
                 content: `
-                    <p>Abrange mecanismos para proteger os recursos do sistema contra malwares e explorações como o <i>Buffer Overflow</i> (transbordamento de buffer).</p>
+                    <p>Abrange mecanismos para proteger os recursos do sistema contra malwares e explorações como o <i>Buffer Overflow</i> (estouro de buffer).</p>
                 `
             }
         ];
@@ -364,12 +364,10 @@
             `;
         }
 
-        // Interatividade da aba de Introdução
         function showDetail(text) {
             document.getElementById('layerDetail').innerText = text;
         }
 
-        // Interatividade da aba de Processos
         let pCount = 0;
         function simulateScheduling() {
             const container = document.getElementById('processContainer');
@@ -388,7 +386,6 @@
             container.appendChild(block);
         }
 
-        // Interatividade da aba de Memória
         function randomPageAccess() {
             const pageId = Math.floor(Math.random() * 4);
             const status = document.getElementById('pageStatus');
@@ -399,10 +396,10 @@
             selected.classList.add('active');
 
             if (pageId === 2) {
-                status.innerText = `⚠️ Falta de Página (Page Fault)! A Página 2 precisa ser carregada do disco para a RAM.`;
+                status.innerText = "Falta de Página (Page Fault): A Página 2 precisa ser carregada do disco para a RAM.";
                 status.style.color = '#dc2626';
             } else {
-                status.innerText = `âœ… Acerto de Página (Page Hit)! A Página ${pageId} foi acedida diretamente na RAM.`;
+                status.innerText = `Acerto de Página (Page Hit): A Página ${pageId} foi acessada diretamente na RAM.`;
                 status.style.color = '#059669';
             }
         }
